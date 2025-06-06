@@ -10,3 +10,16 @@ a build tool, so it will come eventually after nothing needs to be fixed/added f
 [![docs.rs](https://docs.rs/flatc/badge.svg)](https://docs.rs/flatc)
 [![github actions](https://github.com/chippers/flatc.rs/workflows/ci/badge.svg)](https://github.com/chippers/flatc.rs/actions)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+
+## Updating `flatbuffers`
+
+First, fork this repository and clone to your local machine.
+
+Next, update the `flatbuffers` submodule to the latest stable tagged version:
+
+```bash
+cd flatc.rs/flatbuffers
+git checkout tags/<tag> # e.g. v25.2.10
+```
+
+Bump the `Cargo.toml` version following the convention documented above, then commit your change and PR!
