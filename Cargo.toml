@@ -1,14 +1,13 @@
 [package]
 name = "flatc"
-version = "0.3.0+25.2.10"
-authors = ["chip <chip@chip.sh>"]
+version = "0.4.0+25.12.19"
+edition = "2024"
 description = "Vendored executable of flatbuffer's `flatc`."
 documentation = "https://docs.rs/flatc"
-repository = "https://github.com/chippers/flatc.rs"
 readme = "README.md"
+repository = "https://github.com/chippers/flatc.rs"
 license = "MIT"
 keywords = ["flatbuffers"]
-edition = "2024"
 
 [build-dependencies]
 cmake = "0.1"

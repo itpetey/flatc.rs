@@ -19,6 +19,7 @@ Next, update the `flatbuffers` submodule to the latest stable tagged version:
 
 ```bash
 cd flatc.rs/flatbuffers
+git fetch
 git checkout tags/<tag> # e.g. v25.2.10
 ```
 
