@@ -1,0 +1,25 @@
+name: Update Cargo Version Suffix
+description: Update Cargo.toml version suffix to match a flatbuffers tag.
+inputs:
+  file:
+    description: Path to the Cargo.toml file.
+    required: false
+    default: Cargo.toml
+  suffix:
+    description: Flatbuffers tag or suffix (vX.Y.Z or X.Y.Z).
+    required: true
+outputs:
+  version:
+    description: Updated Cargo.toml version.
+    value: ${{ steps.update.outputs.version }}
+  tag:
+    description: Release tag with v prefix.
+    value: ${{ steps.update.outputs.tag }}
+runs:
+  using: composite
+  steps:
+    - id: update
+      shell: bash
+      run: |
+        set -euo pipefail
+        bash "$GITHUB_ACTION_PATH/update-cargo-suffix.sh" "${{ inputs.file }}" "${{ inputs.suffix }}"

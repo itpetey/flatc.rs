@@ -4,9 +4,8 @@
 //!
 //! [flatbuffers]: https://github.com/google/flatbuffers
 
-#[forbid(unsafe_code)]
-
 /// Path of the built `flatc` executable.
+#[forbid(unsafe_code)]
 pub fn flatc() -> &'static std::path::Path {
     if cfg!(windows) {
         std::path::Path::new(concat!(env!("OUT_DIR"), "\\bin\\flatc.exe"))
