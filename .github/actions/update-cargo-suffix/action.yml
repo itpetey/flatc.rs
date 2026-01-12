@@ -1,5 +1,5 @@
 name: Update Cargo Version Suffix
-description: Update Cargo.toml version suffix to match a flatbuffers tag.
+description: Bump the Cargo.toml minor version and update the suffix to match a flatbuffers tag.
 inputs:
   file:
     description: Path to the Cargo.toml file.
