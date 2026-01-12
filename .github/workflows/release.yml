@@ -44,7 +44,7 @@ jobs:
         id: update
         uses: ./.github/actions/update-cargo-suffix
         with:
-          file: Cargo.toml
+          file: ${{ github.workspace }}/Cargo.toml
           suffix: ${{ steps.check.outputs.latest }}
 
       - name: Commit and push
