@@ -65,3 +65,15 @@ jobs:
           name: ${{ steps.update.outputs.tag }}
           target_commitish: main
           generate_release_notes: true
+
+      - name: cargo build
+        if: steps.check.outputs.updated == 'true'
+        run: cargo build --release
+
+      - name: cargo login
+        if: steps.check.outputs.updated == 'true'
+        run: echo ${{ secrets.CRATES_TOKEN }} | cargo login
+
+      - name: cargo publish
+        if: steps.check.outputs.updated == 'true'
+        run: cargo publish
