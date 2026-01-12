@@ -10,6 +10,9 @@ permissions:
 jobs:
   bump-flatbuffers:
     runs-on: ubuntu-latest
+    outputs:
+      updated: ${{ steps.check.outputs.updated }}
+      tag: ${{ steps.update.outputs.tag }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -57,23 +60,26 @@ jobs:
           git commit -m "Bump flatbuffers to ${{ steps.check.outputs.latest }}"
           git push origin HEAD:main
 
+  create-release:
+    runs-on: ubuntu-latest
+    needs: bump-flatbuffers
+    if: needs.bump-flatbuffers.outputs.updated == 'true'
+    steps:
       - name: Create release
-        if: steps.check.outputs.updated == 'true'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.update.outputs.tag }}
-          name: ${{ steps.update.outputs.tag }}
+          tag_name: ${{ needs.bump-flatbuffers.outputs.tag }}
+          name: ${{ needs.bump-flatbuffers.outputs.tag }}
           target_commitish: main
           generate_release_notes: true
 
-      - name: cargo build
-        if: steps.check.outputs.updated == 'true'
-        run: cargo build --release
-
+  publish-crate:
+    runs-on: ubuntu-latest
+    needs: bump-flatbuffers
+    if: needs.bump-flatbuffers.outputs.updated == 'true'
+    steps:
       - name: cargo login
-        if: steps.check.outputs.updated == 'true'
         run: echo ${{ secrets.CRATES_TOKEN }} | cargo login
 
       - name: cargo publish
-        if: steps.check.outputs.updated == 'true'
         run: cargo publish
