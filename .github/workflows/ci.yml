@@ -74,6 +74,33 @@ jobs:
             } catch {
               Write-Host "Header: <error reading> $($_.Exception.Message)"
             }
+            $llvmReadObj = Get-Command llvm-readobj -ErrorAction SilentlyContinue
+            if ($llvmReadObj) {
+              Write-Host "llvm-readobj --file-headers:"
+              try {
+                & $llvmReadObj.Source --file-headers $path.FullName
+              } catch {
+                Write-Host "llvm-readobj failed: $($_.Exception.Message)"
+              }
+            }
+            $llvmObjdump = Get-Command llvm-objdump -ErrorAction SilentlyContinue
+            if ($llvmObjdump) {
+              Write-Host "llvm-objdump -f:"
+              try {
+                & $llvmObjdump.Source -f $path.FullName
+              } catch {
+                Write-Host "llvm-objdump failed: $($_.Exception.Message)"
+              }
+            }
+            $dumpbin = Get-Command dumpbin -ErrorAction SilentlyContinue
+            if ($dumpbin) {
+              Write-Host "dumpbin /headers:"
+              try {
+                & $dumpbin.Source /headers $path.FullName
+              } catch {
+                Write-Host "dumpbin failed: $($_.Exception.Message)"
+              }
+            }
           }
       - run: cargo fmt --all --check
       - run: cargo clippy -- -D warnings
