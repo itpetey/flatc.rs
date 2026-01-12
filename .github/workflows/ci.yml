@@ -60,9 +60,20 @@ jobs:
           foreach ($path in $paths) {
             Write-Host "Found: $($path.FullName)"
             Write-Host "Size: $($path.Length)"
-            $bytes = Get-Content -Path $path.FullName -Encoding Byte -TotalCount 16
-            $hex = ($bytes | ForEach-Object { $_.ToString('X2') }) -join ' '
-            Write-Host "Header: $hex"
+            try {
+              $stream = [System.IO.File]::OpenRead($path.FullName)
+              $buffer = New-Object byte[] 16
+              $read = $stream.Read($buffer, 0, $buffer.Length)
+              $stream.Close()
+              if ($read -le 0) {
+                Write-Host "Header: <empty>"
+                continue
+              }
+              $hex = ($buffer[0..($read - 1)] | ForEach-Object { $_.ToString('X2') }) -join ' '
+              Write-Host "Header: $hex"
+            } catch {
+              Write-Host "Header: <error reading> $($_.Exception.Message)"
+            }
           }
       - run: cargo fmt --all --check
       - run: cargo clippy -- -D warnings
