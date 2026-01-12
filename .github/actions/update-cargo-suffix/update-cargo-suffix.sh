@@ -11,6 +11,18 @@ fi
 
 suffix="${suffix_input#v}"
 
+if [ ! -f "$file_path" ] && [ -n "${GITHUB_WORKSPACE:-}" ]; then
+  workspace_candidate="${GITHUB_WORKSPACE%/}/$file_path"
+  if [ -f "$workspace_candidate" ]; then
+    file_path="$workspace_candidate"
+  fi
+fi
+
+if [ ! -f "$file_path" ]; then
+  echo "Cargo.toml not found at $file_path" >&2
+  exit 1
+fi
+
 new_version="$(python - "$file_path" "$suffix" <<'PY'
 import pathlib
 import re
@@ -19,9 +31,9 @@ import sys
 path = pathlib.Path(sys.argv[1])
 suffix = sys.argv[2]
 text = path.read_text()
-m = re.search(r'^(version\\s*=\\s*")([^"]+)(")', text, flags=re.M)
+m = re.search(r'^(\\s*version\\s*=\\s*")([^"]+)(")', text, flags=re.M)
 if not m:
-    raise SystemExit("version not found in Cargo.toml")
+    raise SystemExit(f"version not found in {path}")
 version = m.group(2)
 base = version.split("+", 1)[0]
 new_version = f"{base}+{suffix}"
