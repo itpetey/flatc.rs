@@ -39,6 +39,31 @@ jobs:
         with:
           toolchain: ${{ matrix.rust }}
       - run: cargo check -vv
+      - name: Debug build script (win-gnu)
+        if: failure() && matrix.build == 'win-gnu'
+        run: |
+          Write-Host "CARGO_BUILD_TARGET=$env:CARGO_BUILD_TARGET"
+          Write-Host "CARGO_TARGET_DIR=$env:CARGO_TARGET_DIR"
+          Write-Host "RUSTFLAGS=$env:RUSTFLAGS"
+          $config = Join-Path $env:USERPROFILE ".cargo\config.toml"
+          if (Test-Path $config) {
+            Write-Host "Cargo config: $config"
+            Get-Content $config
+          } else {
+            Write-Host "No cargo config at $config"
+          }
+          $paths = Get-ChildItem -Path target\debug\build -Filter build-script-build* -Recurse -ErrorAction SilentlyContinue
+          if (-not $paths) {
+            Write-Host "No build-script-build files found."
+            exit 0
+          }
+          foreach ($path in $paths) {
+            Write-Host "Found: $($path.FullName)"
+            Write-Host "Size: $($path.Length)"
+            $bytes = Get-Content -Path $path.FullName -Encoding Byte -TotalCount 16
+            $hex = ($bytes | ForEach-Object { $_.ToString('X2') }) -join ' '
+            Write-Host "Header: $hex"
+          }
       - run: cargo fmt --all --check
       - run: cargo clippy -- -D warnings
       - run: cargo test --verbose
