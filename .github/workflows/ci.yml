@@ -38,70 +38,14 @@ jobs:
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.rust }}
-      - run: cargo check -vv
-      - name: Debug build script (win-gnu)
-        if: failure() && matrix.build == 'win-gnu'
+      - name: Prefer Rust toolchain bin on PATH (win-gnu)
+        if: matrix.build == 'win-gnu'
         run: |
-          Write-Host "CARGO_BUILD_TARGET=$env:CARGO_BUILD_TARGET"
-          Write-Host "CARGO_TARGET_DIR=$env:CARGO_TARGET_DIR"
-          Write-Host "RUSTFLAGS=$env:RUSTFLAGS"
-          $config = Join-Path $env:USERPROFILE ".cargo\config.toml"
-          if (Test-Path $config) {
-            Write-Host "Cargo config: $config"
-            Get-Content $config
-          } else {
-            Write-Host "No cargo config at $config"
-          }
-          $paths = Get-ChildItem -Path target\debug\build -Filter build-script-build* -Recurse -ErrorAction SilentlyContinue
-          if (-not $paths) {
-            Write-Host "No build-script-build files found."
-            exit 0
-          }
-          foreach ($path in $paths) {
-            Write-Host "Found: $($path.FullName)"
-            Write-Host "Size: $($path.Length)"
-            try {
-              $stream = [System.IO.File]::OpenRead($path.FullName)
-              $buffer = New-Object byte[] 16
-              $read = $stream.Read($buffer, 0, $buffer.Length)
-              $stream.Close()
-              if ($read -le 0) {
-                Write-Host "Header: <empty>"
-                continue
-              }
-              $hex = ($buffer[0..($read - 1)] | ForEach-Object { $_.ToString('X2') }) -join ' '
-              Write-Host "Header: $hex"
-            } catch {
-              Write-Host "Header: <error reading> $($_.Exception.Message)"
-            }
-            $llvmReadObj = Get-Command llvm-readobj -ErrorAction SilentlyContinue
-            if ($llvmReadObj) {
-              Write-Host "llvm-readobj --file-headers:"
-              try {
-                & $llvmReadObj.Source --file-headers $path.FullName
-              } catch {
-                Write-Host "llvm-readobj failed: $($_.Exception.Message)"
-              }
-            }
-            $llvmObjdump = Get-Command llvm-objdump -ErrorAction SilentlyContinue
-            if ($llvmObjdump) {
-              Write-Host "llvm-objdump -f:"
-              try {
-                & $llvmObjdump.Source -f $path.FullName
-              } catch {
-                Write-Host "llvm-objdump failed: $($_.Exception.Message)"
-              }
-            }
-            $dumpbin = Get-Command dumpbin -ErrorAction SilentlyContinue
-            if ($dumpbin) {
-              Write-Host "dumpbin /headers:"
-              try {
-                & $dumpbin.Source /headers $path.FullName
-              } catch {
-                Write-Host "dumpbin failed: $($_.Exception.Message)"
-              }
-            }
-          }
+          $rustcPath = (Get-Command rustc).Source
+          $toolchainBin = Split-Path $rustcPath
+          Write-Host "Prepending $toolchainBin to PATH"
+          "PATH=$toolchainBin;$env:PATH" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - run: cargo check
       - run: cargo fmt --all --check
       - run: cargo clippy -- -D warnings
       - run: cargo test --verbose
