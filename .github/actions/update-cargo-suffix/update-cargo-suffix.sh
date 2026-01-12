@@ -30,7 +30,12 @@ if not m:
 version = m.group(2)
 base = version.split("+", 1)[0]
 new_version = f"{base}+{suffix}"
-new_text = re.sub(r'^(\s*version\s*=\s*")[^"]+(")', r'\1' + new_version + r'\2', text, flags=re.M)
+new_text = re.sub(
+    r'^(\s*version\s*=\s*")[^"]+(")',
+    lambda m: f"{m.group(1)}{new_version}{m.group(2)}",
+    text,
+    flags=re.M,
+)
 if new_text != text:
     path.write_text(new_text)
 print(new_version)
