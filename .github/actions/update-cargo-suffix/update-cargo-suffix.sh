@@ -29,7 +29,7 @@ if not m:
     raise SystemExit(f"version not found in {path}")
 version = m.group(2)
 base = version.split("+", 1)[0]
-base_match = re.match(r"^(\\d+)\\.(\\d+)\\.(\\d+)(?:-.+)?$", base)
+base_match = re.match(r"^(\d+)\.(\d+)\.(\d+)(?:-.+)?$", base)
 if not base_match:
     raise SystemExit(f"unsupported version format: {base}")
 major, minor, _patch = map(int, base_match.groups()[:3])
