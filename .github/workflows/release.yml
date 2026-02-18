@@ -15,7 +15,7 @@ jobs:
   bump-flatbuffers:
     runs-on: ubuntu-latest
     outputs:
-      updated: ${{ steps.check.outputs.updated }}
+      updated: ${{ steps.commit.outputs.updated }}
       tag: ${{ steps.update.outputs.tag }}
     steps:
       - uses: actions/checkout@v6
@@ -54,6 +54,7 @@ jobs:
           suffix: ${{ steps.check.outputs.latest }}
 
       - name: Commit and push
+        id: commit
         if: steps.check.outputs.updated == 'true'
         run: |
           set -euo pipefail
@@ -62,6 +63,7 @@ jobs:
           git add flatbuffers Cargo.toml
           git commit -m "Bump flatbuffers to ${{ steps.check.outputs.latest }}"
           git push origin HEAD:main
+          echo "updated=true" >> "$GITHUB_OUTPUT"
 
   create-release:
     runs-on: ubuntu-latest
