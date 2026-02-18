@@ -1,6 +1,6 @@
 [package]
 name = "flatc-fork"
-version = "0.5.0+25.12.19"
+version = "0.6.0+25.12.19-2026-02-06-03fffb2"
 edition = "2024"
 description = "Vendored executable of flatbuffer's `flatc` (maintained fork)."
 documentation = "https://docs.rs/flatc-fork"
